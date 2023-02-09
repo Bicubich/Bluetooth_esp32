@@ -40,7 +40,7 @@ class BtListActivity() : AppCompatActivity(), RcAdapter.Listener {
 
     @SuppressLint("MissingPermission")
     private fun getPairedDevices() {
-        if (checkPermissions()){
+        if (!checkPermissions()){
             val pairedDevices: Set<BluetoothDevice>? = btAdapter?.bondedDevices
             val tempList = ArrayList<ListItem>()
             pairedDevices?.forEach {

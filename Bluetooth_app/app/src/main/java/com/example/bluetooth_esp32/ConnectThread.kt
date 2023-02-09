@@ -4,20 +4,18 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.util.Log
-import android.widget.Toast
-import com.example.bluetooth_esp32.databinding.ActivityControlBinding
 import java.io.IOException
 import java.util.*
 
 @SuppressLint("MissingPermission")
 class ConnectThread(private val device: BluetoothDevice): Thread() {
-    val uuid = "00000000-0000-1000-8000-00805F9B34FB"
+    val uuid = "11010000-0000-1000-8000-00805F9B34FB"
     var mySocked: BluetoothSocket? = null
     lateinit var rThread: ReceiveThread
 
     init {
         try {
-            mySocked = device.createRfcommSocketToServiceRecord(UUID.fromString(uuid))
+            mySocked = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString(uuid))
         } catch (i: IOException){
             Log.d("MyLog", "ConnectThread init warning")
         }
@@ -32,8 +30,25 @@ class ConnectThread(private val device: BluetoothDevice): Thread() {
             rThread = ReceiveThread(mySocked!!)
             rThread.start()
         } catch (i: IOException){
+            Log.d("MyLog", i.stackTraceToString())
             Log.d("MyLog", "Can not connect to device")
-            closeConnection()
+            Log.d("MyLog", "Trying one more time...")
+
+            try {
+                mySocked = device.javaClass.getMethod(
+                    "createRfcommSocket", *arrayOf<Class<*>?>(
+                        Int::class.javaPrimitiveType
+                    )
+                ).invoke(device, 1) as BluetoothSocket
+                mySocked?.connect()
+                Log.d("MyLog", "Connected")
+                rThread = ReceiveThread(mySocked!!)
+                rThread.start()
+            } catch (i: IOException) {
+                Log.d("MyLog", i.stackTraceToString())
+                Log.d("MyLog", "Finaly: Can not connect to device")
+                closeConnection()
+            }
         }
     }
 
