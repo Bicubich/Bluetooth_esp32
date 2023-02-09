@@ -58,29 +58,44 @@ class BtListActivity() : AppCompatActivity(), RcAdapter.Listener {
     }
 
     private fun requestPermissions(){
-        if (!checkPermissions())
+        if (checkPermissions())
             if (isModernSDK())
                 ActivityCompat.requestPermissions(this,
-                    arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT, android.Manifest.permission.ACCESS_COARSE_LOCATION), 10)
+                    arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT, android.Manifest.permission.ACCESS_FINE_LOCATION), 10)
             else
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION), 10)
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 10)
     }
 
     private fun checkPermissions(): Boolean{
+        var bl_conn = false;
+        var cpar_loc = false;
+
         if (isModernSDK()){
-            return (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
-                        ) && (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED)
+            bl_conn = ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+
+            cpar_loc = ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+
+            return bl_conn || cpar_loc
+
+            //return (ActivityCompat.checkSelfPermission(
+            //        this,
+            //        Manifest.permission.BLUETOOTH_CONNECT
+            //    ) != PackageManager.PERMISSION_GRANTED
+            //            ) && (ActivityCompat.checkSelfPermission(
+            //        this,
+            //        Manifest.permission.ACCESS_COARSE_LOCATION
+            //    ) != PackageManager.PERMISSION_GRANTED)
         }
         else{
             return (ActivityCompat.checkSelfPermission(
                 this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED)
         }
     }
