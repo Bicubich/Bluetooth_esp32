@@ -11,6 +11,7 @@ import android.view.MenuItem
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.bluetooth_esp32.databinding.ActivityControlBinding
+import java.io.IOException
 
 class ControlActivity : AppCompatActivity() {
     private lateinit var binding: ActivityControlBinding
@@ -33,6 +34,8 @@ class ControlActivity : AppCompatActivity() {
         val btManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val btAdapter = btManager.adapter
         btConnection = BtConnection(btAdapter)
+        binding.bSendMessage.isEnabled = false
+        binding.etMessage.isEnabled = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -45,7 +48,22 @@ class ControlActivity : AppCompatActivity() {
             actListLauncher.launch(Intent(this, BtListActivity::class.java))
         } else if(item.itemId == R.id.id_connect){
             listItem.let {
-                btConnection.connect(it?.mac!!)
+                if (it?.mac != null) {
+                    btConnection.connect(it.mac!!)
+
+                    if (btConnection.returnSocketStatus()){
+                        binding.bSendMessage.isEnabled = true
+                        binding.etMessage.isEnabled = true
+                    }
+                    else{
+                        binding.bSendMessage.isEnabled = false
+                        binding.etMessage.isEnabled = false
+                    }
+
+                }
+                else{
+                    Log.d("MyLog", "Sync status: No device has been selected yet")
+                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -56,6 +74,7 @@ class ControlActivity : AppCompatActivity() {
             ActivityResultContracts.StartActivityForResult()){
             if (it.resultCode == RESULT_OK){
                 listItem = it.data?.getSerializableExtra(BtListActivity.DEVICE_KEY) as ListItem
+                binding.tvCurrentDevice.text =  "Current device: " + listItem!!.name
             }
         }
     }

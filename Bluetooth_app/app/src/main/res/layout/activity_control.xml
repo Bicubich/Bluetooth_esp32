@@ -8,39 +8,50 @@
 
     <EditText
         android:id="@+id/etMessage"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Message"
-        app:layout_constraintBottom_toTopOf="@+id/bSendMessage"
-        app:layout_constraintEnd_toEndOf="@+id/bSendMessage"
-        app:layout_constraintStart_toStartOf="@+id/bSendMessage"
+        android:hint="Message"
+        app:layout_constraintBottom_toBottomOf="@+id/bSendMessage"
+        app:layout_constraintEnd_toStartOf="@+id/bSendMessage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/bSendMessage"
         tools:ignore="TouchTargetSizeCheck" />
 
     <Button
         android:id="@+id/bSendMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_width="74dp"
+        android:layout_height="59dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="15dp"
-        android:text="SEND MESSAGE"
+        android:text="SEND"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        tools:ignore="TouchTargetSizeCheck" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="15dp"
         android:text="History message (don't work)"
         app:layout_constraintBottom_toTopOf="@+id/etMessage"
         app:layout_constraintEnd_toEndOf="@+id/etMessage"
         app:layout_constraintStart_toStartOf="@+id/etMessage" />
+
+    <TextView
+        android:id="@+id/tvCurrentDevice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Current device: Empty"
+        android:textSize="20dp"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

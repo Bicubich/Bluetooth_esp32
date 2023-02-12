@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.util.Log
+import com.example.bluetooth_esp32.databinding.ActivityControlBinding
 import java.io.IOException
 import java.util.*
 
@@ -46,7 +47,7 @@ class ConnectThread(private val device: BluetoothDevice): Thread() {
                 rThread.start()
             } catch (i: IOException) {
                 Log.d("MyLog", i.stackTraceToString())
-                Log.d("MyLog", "Finaly: Can not connect to device")
+                Log.d("MyLog", "Finally: Can not connect to device")
                 closeConnection()
             }
         }
@@ -58,5 +59,11 @@ class ConnectThread(private val device: BluetoothDevice): Thread() {
         } catch (i: IOException){
             Log.d("MyLog", "ConnectThread closeConnection() warning")
         }
+    }
+
+    fun returnSocketStatus(): Boolean{
+        if (mySocked != null)
+            return mySocked!!.isConnected
+        return false
     }
 }

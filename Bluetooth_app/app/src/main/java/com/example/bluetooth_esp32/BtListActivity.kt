@@ -82,15 +82,6 @@ class BtListActivity() : AppCompatActivity(), RcAdapter.Listener {
             ) != PackageManager.PERMISSION_GRANTED
 
             return bl_conn || cpar_loc
-
-            //return (ActivityCompat.checkSelfPermission(
-            //        this,
-            //        Manifest.permission.BLUETOOTH_CONNECT
-            //    ) != PackageManager.PERMISSION_GRANTED
-            //            ) && (ActivityCompat.checkSelfPermission(
-            //        this,
-            //        Manifest.permission.ACCESS_COARSE_LOCATION
-            //    ) != PackageManager.PERMISSION_GRANTED)
         }
         else{
             return (ActivityCompat.checkSelfPermission(
