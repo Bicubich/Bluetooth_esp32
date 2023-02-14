@@ -10,12 +10,14 @@
 
     <EditText
         android:id="@+id/etMessage"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="15dp"
+        android:layout_width="295dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
         android:background="@color/white"
         android:backgroundTint="@color/white"
+        android:textColor="@color/black"
         android:ems="10"
         android:hint="Message"
         android:inputType="textPersonName"
@@ -27,10 +29,10 @@
 
     <Button
         android:id="@+id/bSendMessage"
-        android:layout_width="74dp"
-        android:layout_height="59dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="15dp"
+        android:layout_width="92dp"
+        android:layout_height="38dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
         android:background="@color/black"
         android:text="SEND"
         android:textColorHighlight="@color/black"
@@ -42,10 +44,10 @@
     <TextView
         android:id="@+id/tvChatHostory"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="30dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/white"
         android:hint="History message (don't work)"
         android:textColor="@color/black"
@@ -71,16 +73,17 @@
 
     <Spinner
         android:id="@+id/spinner"
-        android:layout_width="0dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="15dp"
+        android:layout_width="386dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
         android:background="#CCCCCC"
         android:backgroundTint="#CCCCCC"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/etMessage"
-        app:layout_constraintEnd_toEndOf="@+id/bSendMessage"
-        app:layout_constraintStart_toStartOf="@+id/etMessage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
