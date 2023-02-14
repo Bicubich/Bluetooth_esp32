@@ -1,6 +1,7 @@
-.idea/*
-.gradle/*
+.idea/
+.gradle/
 *.bin
 *.lock
 *.probe
 *.jar
+*.xml
