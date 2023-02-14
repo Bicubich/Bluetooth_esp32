@@ -56,7 +56,6 @@ class ConnectThread(): Thread() {
             } catch (i: IOException) {
                 Log.d("MyLog", "Bluetooth connection failed: " + i.stackTraceToString())
                 closeConnection()
-
             }
         }
     }
@@ -69,7 +68,6 @@ class ConnectThread(): Thread() {
             Log.d("MyLog", "Bluetooth disconnection failed: " + i.stackTraceToString())
         }
         threadIsActive = false
-
     }
 
     fun returnSocketStatus(): Boolean{

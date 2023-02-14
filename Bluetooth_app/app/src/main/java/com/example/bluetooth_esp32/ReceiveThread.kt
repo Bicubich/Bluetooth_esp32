@@ -5,6 +5,7 @@ import android.util.Log
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.charset.Charset
 import java.util.*
 
 class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
@@ -26,22 +27,24 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
     }
 
     override fun run() {
-        val buffer = ByteArray(1024) // buffer store for the stream
-        var bytes: Int // bytes returned from read()
+        val buffer = ByteArray(256) // buffer store for the stream
+        var bytes = 0 // bytes returned from read()
+        var message = ""
 
         // Keep listening to the InputStream until an exception occurs
         while (true) {
             try {
                 // Read from the InputStream
-                bytes = inStream!!.read(buffer)
-                Log.d("MyLog", "Message: ${buffer.contentToString()}")
-                // Send the obtained bytes to the UI activity
-                //mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
-                //    .sendToTarget()
+                bytes = inStream!!.read(buffer, 0, inStream!!.available())
+                message = String(buffer, 0, bytes)
             } catch (e: IOException) {
                 Log.d("MyLog", "The message was not received")
                 break
             }
+            if (bytes > 0) {
+                Log.d("MyLog", "Message: $message [$bytes]")
+            }
+
         }
     }
 
@@ -50,6 +53,7 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
             outStream?.write(byteArray)
         } catch (i: IOException){
             Log.d("MyLog", "Failed to send a message: " + i.stackTraceToString())
+
         }
     }
 }
