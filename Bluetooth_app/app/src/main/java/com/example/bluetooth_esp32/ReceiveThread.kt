@@ -50,8 +50,6 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
             outStream?.write(byteArray)
         } catch (i: IOException){
             Log.d("MyLog", "Failed to send a message: " + i.stackTraceToString())
-        } finally {
-            outStream?.close()
         }
     }
 }
