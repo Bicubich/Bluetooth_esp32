@@ -106,8 +106,7 @@ class ControlActivity : AppCompatActivity(){
     private fun sendMsg(msg: String){
         btConnection.sendMessage(msg)
         binding.tvChatHostory.text.toString().contains("\n")
-        binding.tvChatHostory.text = binding.tvChatHostory.text.toString() + "\nUser: $msg"
-        binding.etMessage.setText("")
+        binding.tvChatHostory.text = binding.tvChatHostory.text.toString() + "\nCommand: $msg"
     }
 
     // saving commands in the phone memory
