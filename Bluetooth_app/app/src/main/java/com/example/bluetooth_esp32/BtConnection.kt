@@ -43,6 +43,6 @@ class BtConnection(private val adapter: BluetoothAdapter) {
     }
 
     fun returnSocketStatus(): Boolean{
-       return isSocketStatus
+       return cThread?.threadIsActive!!
     }
 }

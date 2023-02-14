@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -17,8 +19,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bluetooth_esp32.databinding.ActivityControlBinding
 
-class ControlActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityControlBinding
+class ControlActivity : AppCompatActivity(){
+    lateinit var binding: ActivityControlBinding
     private lateinit var actListLauncher: ActivityResultLauncher<Intent>
     lateinit var btConnection: BtConnection
     private var listItem: ListItem? = null
@@ -37,15 +39,13 @@ class ControlActivity : AppCompatActivity() {
         init()
         initMemoryData()
         initSpinner()
+        initHandler()
         binding.bSendMessage.setOnClickListener{
             var msg = binding.etMessage.text.toString()
             // we save the command when it is not in the last 10 in memory
             if (!isContainsComand(msg))
                 saveData(msg)
-            btConnection.sendMessage(msg)
-            binding.tvChatHostory.text.toString().contains("\n")
-            binding.tvChatHostory.text = binding.tvChatHostory.text.toString() + "\nUser: $msg"
-            binding.etMessage.setText("")
+            sendMsg(msg)
         }
     }
 
@@ -53,8 +53,7 @@ class ControlActivity : AppCompatActivity() {
         val btManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val btAdapter = btManager.adapter
         btConnection = BtConnection(btAdapter)
-        //binding.bSendMessage.isEnabled = false
-        //binding.etMessage.isEnabled = false
+        changeStatusChatElements(false)
         pref = getSharedPreferences("TABLE", Context.MODE_PRIVATE)
     }
 
@@ -97,6 +96,18 @@ class ControlActivity : AppCompatActivity() {
                 binding.tvCurrentDevice.text =  "Current device: " + listItem!!.name
             }
         }
+    }
+
+    fun changeStatusChatElements(status: Boolean){
+        binding.bSendMessage.isEnabled = status
+        binding.etMessage.isEnabled = status
+    }
+
+    private fun sendMsg(msg: String){
+        btConnection.sendMessage(msg)
+        binding.tvChatHostory.text.toString().contains("\n")
+        binding.tvChatHostory.text = binding.tvChatHostory.text.toString() + "\nUser: $msg"
+        binding.etMessage.setText("")
     }
 
     // saving commands in the phone memory
@@ -206,5 +217,14 @@ class ControlActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    private fun initHandler(){
+        val myHandler: Handler = @SuppressLint("HandlerLeak")
+        object : Handler() {
+            override fun handleMessage(msg: Message) {
+                //здесь что-нибудь делаем
+            }
+        }
     }
 }

@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.util.Log
-import com.example.bluetooth_esp32.databinding.ActivityControlBinding
+import android.widget.Button
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import java.io.IOException
 import java.util.*
 
@@ -15,6 +17,11 @@ class ConnectThread(): Thread() {
     var threadIsActive = false
     var deviceName = ""
     lateinit var rThread: ReceiveThread
+
+    private lateinit var sendBtn: Button
+    private lateinit var chatText: EditText
+
+    private var controlActivity: ControlActivity = ControlActivity()
 
     init {
     }
@@ -45,9 +52,11 @@ class ConnectThread(): Thread() {
                 Log.d("MyLog", "Connected to $deviceName")
                 rThread = ReceiveThread(mySocked!!)
                 rThread.start()
+
             } catch (i: IOException) {
                 Log.d("MyLog", "Bluetooth connection failed: " + i.stackTraceToString())
                 closeConnection()
+
             }
         }
     }
@@ -60,6 +69,7 @@ class ConnectThread(): Thread() {
             Log.d("MyLog", "Bluetooth disconnection failed: " + i.stackTraceToString())
         }
         threadIsActive = false
+
     }
 
     fun returnSocketStatus(): Boolean{
