@@ -43,6 +43,7 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
             }
             if (bytes > 0) {
                 Log.d("MyLog", "Message: $message [$bytes]")
+                inputMsg = message
             }
 
         }
@@ -55,5 +56,9 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
             Log.d("MyLog", "Failed to send a message: " + i.stackTraceToString())
 
         }
+    }
+
+    fun returnMessage(): String{
+        return inputMsg
     }
 }

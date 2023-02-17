@@ -16,7 +16,9 @@ class ConnectThread(): Thread() {
     var mySocked: BluetoothSocket? = null
     var threadIsActive = false
     var deviceName = ""
-    lateinit var rThread: ReceiveThread
+    var rThread: ReceiveThread? = null
+
+    var inputMsg: String = ""
 
     private lateinit var sendBtn: Button
     private lateinit var chatText: EditText
@@ -38,7 +40,7 @@ class ConnectThread(): Thread() {
             mySocked?.connect()
             Log.d("MyLog", "Connected to $deviceName")
             rThread = ReceiveThread(mySocked!!)
-            rThread.start()
+            rThread?.start()
         } catch (i: IOException){
             Log.d("MyLog", i.stackTraceToString())
             Log.d("MyLog", "Trying one more time...")
@@ -51,12 +53,19 @@ class ConnectThread(): Thread() {
                 mySocked?.connect()
                 Log.d("MyLog", "Connected to $deviceName")
                 rThread = ReceiveThread(mySocked!!)
-                rThread.start()
+                rThread?.start()
 
             } catch (i: IOException) {
                 Log.d("MyLog", "Bluetooth connection failed: " + i.stackTraceToString())
                 closeConnection()
             }
+        }
+    }
+
+    override fun run(){
+        if (rThread != null) {
+            inputMsg = rThread!!.inputMsg
+            rThread?.inputMsg = ""
         }
     }
 
@@ -74,5 +83,9 @@ class ConnectThread(): Thread() {
         if (mySocked != null)
             return mySocked!!.isConnected
         return false
+    }
+
+    fun returnSocket(): BluetoothSocket{
+        return mySocked!!
     }
 }
