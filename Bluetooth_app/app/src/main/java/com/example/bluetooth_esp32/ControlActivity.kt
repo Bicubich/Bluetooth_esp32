@@ -18,15 +18,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bluetooth_esp32.databinding.ActivityControlBinding
-import kotlin.concurrent.thread
 
 class ControlActivity : AppCompatActivity(){
     lateinit var binding: ActivityControlBinding
     private lateinit var actListLauncher: ActivityResultLauncher<Intent>
     lateinit var btConnection: BtConnection
     private var listItem: ListItem? = null
-
-    private var deviceName = ""
 
     private var spinnerAdapter: ArrayAdapter<String>? = null
 
@@ -42,36 +39,12 @@ class ControlActivity : AppCompatActivity(){
         init()
         initMemoryData()
         initSpinner()
-        initHandler()
         binding.bSendMessage.setOnClickListener{
             var msg = binding.etMessage.text.toString()
             // we save the command when it is not in the last 10 in memory
             if (!isContainsComand(msg))
                 saveData(msg)
-            sendMsg(msg)
-        }
-
-        thread {
-            Thread.sleep(1000)
-            
-            listItem.let {
-                if (it?.mac != null) {
-                    binding.tvCurrentDevice.text = "Current device: Connecting to $deviceName..."
-                    btConnection.connect(it.mac!!)
-
-                    if (btConnection.returnSocketStatus()){
-                        binding.tvCurrentDevice.text = "Current device: Connected to $deviceName"
-                        binding.bSendMessage.isEnabled = true
-                        binding.etMessage.isEnabled = true
-                    }
-                    else{
-                        binding.tvCurrentDevice.text = "Current device: Disconnected to $deviceName"
-                        binding.bSendMessage.isEnabled = false
-                        binding.etMessage.isEnabled = false
-                    }
-
-                }
-            }
+            sendMsg(msg, "output")
         }
     }
 
@@ -88,10 +61,29 @@ class ControlActivity : AppCompatActivity(){
         return super.onCreateOptionsMenu(menu)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.id_list){
             actListLauncher.launch(Intent(this, BtListActivity::class.java))
+        } else if(item.itemId == R.id.id_connect){
+            listItem.let {
+                if (it?.mac != null) {
+                    btConnection.connect(it.mac!!)
+                    btConnection.handler = handler
+
+                    if (btConnection.returnSocketStatus()){
+                        binding.bSendMessage.isEnabled = true
+                        binding.etMessage.isEnabled = true
+                    }
+                    else{
+                        binding.bSendMessage.isEnabled = false
+                        binding.etMessage.isEnabled = false
+                    }
+
+                }
+                else{
+                    Log.d("MyLog", "Sync status: No device has been selected yet")
+                }
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -101,7 +93,7 @@ class ControlActivity : AppCompatActivity(){
             ActivityResultContracts.StartActivityForResult()){
             if (it.resultCode == RESULT_OK){
                 listItem = it.data?.getSerializableExtra(BtListActivity.DEVICE_KEY) as ListItem
-                deviceName = listItem!!.name
+                binding.tvCurrentDevice.text =  "Current device: " + listItem!!.name
             }
         }
     }
@@ -111,10 +103,12 @@ class ControlActivity : AppCompatActivity(){
         binding.etMessage.isEnabled = status
     }
 
-    private fun sendMsg(msg: String){
-        btConnection.sendMessage(msg)
+    private fun sendMsg(msg: String, type: String){
+        if (type == "output")
+            btConnection.sendMessage(msg)
+
         binding.tvChatHostory.text.toString().contains("\n")
-        binding.tvChatHostory.text = binding.tvChatHostory.text.toString() + "\nCommand: $msg"
+        binding.tvChatHostory.text = binding.tvChatHostory.text.toString() + "\n${type}: $msg"
     }
 
     // saving commands in the phone memory
@@ -226,12 +220,11 @@ class ControlActivity : AppCompatActivity(){
 
     }
 
-    private fun initHandler(){
-        val myHandler: Handler = @SuppressLint("HandlerLeak")
-        object : Handler() {
-            override fun handleMessage(msg: Message) {
-                //здесь что-нибудь делаем
-            }
+    private val handler = @SuppressLint("HandlerLeak")
+    object : Handler() {
+        @SuppressLint("SetTextI18n")
+        override fun handleMessage(msg: Message) {
+            sendMsg(msg.toString(), "input")
         }
     }
 }

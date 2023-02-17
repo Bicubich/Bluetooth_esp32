@@ -1,6 +1,8 @@
 package com.example.bluetooth_esp32
 
 import android.bluetooth.BluetoothSocket
+import android.os.Handler
+import android.os.Message
 import android.util.Log
 import java.io.IOException
 import java.io.InputStream
@@ -11,7 +13,8 @@ import java.util.*
 class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
     var outStream: OutputStream? = null
     var inStream: InputStream? = null
-    var inputMsg: String = ""
+
+    var handler: Handler? = null
 
     init {
         try {
@@ -43,7 +46,11 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
             }
             if (bytes > 0) {
                 Log.d("MyLog", "Message: $message [$bytes]")
-                inputMsg = message
+                var messageHandler = Message.obtain()
+
+                messageHandler.obj = message
+
+                handler?.sendMessage(messageHandler)
             }
 
         }
@@ -56,9 +63,5 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
             Log.d("MyLog", "Failed to send a message: " + i.stackTraceToString())
 
         }
-    }
-
-    fun returnMessage(): String{
-        return inputMsg
     }
 }

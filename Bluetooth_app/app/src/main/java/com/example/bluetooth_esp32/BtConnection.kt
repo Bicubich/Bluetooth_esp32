@@ -2,16 +2,15 @@ package com.example.bluetooth_esp32
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.os.Handler
 import android.util.Log
 
 class BtConnection(private val adapter: BluetoothAdapter) {
     private var cThread: ConnectThread? = null
-    private var rThread: ReceiveThread? = null
     private var isSocketStatus = false
     private var currentDevice: BluetoothDevice? = null
-    private var socketStatus: Boolean? = false
 
-    private var inputMsg: String = ""
+    var handler: Handler? = null
 
     fun connect(mac: String) {
             if (adapter.isEnabled && mac.isNotEmpty()) {
@@ -19,8 +18,8 @@ class BtConnection(private val adapter: BluetoothAdapter) {
                 device.let {
                     if (cThread == null) {
                         cThread = ConnectThread()
+                        cThread?.handler = handler
                         cThread?.start()
-
                         currentDevice = device
                         Log.d("MyLog", "Thread Started")
                     }

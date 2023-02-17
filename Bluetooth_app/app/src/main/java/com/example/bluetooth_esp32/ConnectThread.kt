@@ -3,6 +3,7 @@ package com.example.bluetooth_esp32
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
+import android.os.Handler
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -16,14 +17,12 @@ class ConnectThread(): Thread() {
     var mySocked: BluetoothSocket? = null
     var threadIsActive = false
     var deviceName = ""
-    var rThread: ReceiveThread? = null
-
-    var inputMsg: String = ""
+    lateinit var rThread: ReceiveThread
 
     private lateinit var sendBtn: Button
     private lateinit var chatText: EditText
 
-    private var controlActivity: ControlActivity = ControlActivity()
+    var handler: Handler? = null
 
     init {
     }
@@ -40,7 +39,8 @@ class ConnectThread(): Thread() {
             mySocked?.connect()
             Log.d("MyLog", "Connected to $deviceName")
             rThread = ReceiveThread(mySocked!!)
-            rThread?.start()
+            rThread.handler = handler
+            rThread.start()
         } catch (i: IOException){
             Log.d("MyLog", i.stackTraceToString())
             Log.d("MyLog", "Trying one more time...")
@@ -53,19 +53,13 @@ class ConnectThread(): Thread() {
                 mySocked?.connect()
                 Log.d("MyLog", "Connected to $deviceName")
                 rThread = ReceiveThread(mySocked!!)
-                rThread?.start()
+                rThread.handler = handler
+                rThread.start()
 
             } catch (i: IOException) {
                 Log.d("MyLog", "Bluetooth connection failed: " + i.stackTraceToString())
                 closeConnection()
             }
-        }
-    }
-
-    override fun run(){
-        if (rThread != null) {
-            inputMsg = rThread!!.inputMsg
-            rThread?.inputMsg = ""
         }
     }
 
@@ -83,9 +77,5 @@ class ConnectThread(): Thread() {
         if (mySocked != null)
             return mySocked!!.isConnected
         return false
-    }
-
-    fun returnSocket(): BluetoothSocket{
-        return mySocked!!
     }
 }
