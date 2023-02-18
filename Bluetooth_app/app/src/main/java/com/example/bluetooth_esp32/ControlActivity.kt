@@ -27,6 +27,8 @@ class ControlActivity : AppCompatActivity(){
 
     private var spinnerAdapter: ArrayAdapter<String>? = null
 
+    private var message: MutableList<String> = mutableListOf()
+
     private var pref: SharedPreferences? = null
     var commands: Array<String> = arrayOf()
 
@@ -100,12 +102,15 @@ class ControlActivity : AppCompatActivity(){
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun sendMsg(msg: String, type: String){
         if (type == "output")
             btConnection.sendMessage(msg)
 
-        binding.tvChatHostory.text.toString().contains("\n")
-        binding.tvChatHostory.text = binding.tvChatHostory.text.toString() + "\n${type}: $msg"
+        if(binding.tvChatHostory.text == "")
+            binding.tvChatHostory.append("$type: $msg")
+        else
+            binding.tvChatHostory.text = "$type: $msg\n" + binding.tvChatHostory.text.toString()
     }
 
     // saving commands in the phone memory
