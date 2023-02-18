@@ -97,20 +97,22 @@ class ControlActivity : AppCompatActivity(){
             if (status) {
                 binding.tvCurrentDevice.text = "Device " + listItem!!.name + " connected"
             } else {
-                binding.tvCurrentDevice.text = "Device " + listItem!!.name + " DISCONNECTED!"
+                binding.tvCurrentDevice.text = "Dsevice " + listItem!!.name + " DISCONNECTED!"
             }
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun sendMsg(msg: String, type: String){
-        if (type == "output")
+        if (type == "output") {
             btConnection.sendMessage(msg)
-
-        if(binding.tvChatHostory.text == "")
+        }
+        if(binding.tvChatHostory.text == "") {
             binding.tvChatHostory.append("$type: $msg")
-        else
-            binding.tvChatHostory.text = "$type: $msg\n" + binding.tvChatHostory.text.toString()
+        } else {
+            binding.tvChatHostory.append("\n$type: $msg")
+        }
+        binding.tvChatHostoryScrollView.fullScroll(View.FOCUS_DOWN)
     }
 
     // saving commands in the phone memory
