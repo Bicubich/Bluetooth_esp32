@@ -51,7 +51,7 @@ class ControlActivity : AppCompatActivity(){
     private fun init(){
         val btManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val btAdapter = btManager.adapter
-        btConnection = BtConnection(btAdapter)
+        btConnection = BtConnection(btAdapter, handler_input_message, handler_bt_connection)
         changeStatusChatElements(false)
         pref = getSharedPreferences("TABLE", Context.MODE_PRIVATE)
     }
@@ -68,17 +68,7 @@ class ControlActivity : AppCompatActivity(){
             listItem.let {
                 if (it?.mac != null) {
                     btConnection.connect(it.mac!!)
-                    btConnection.handler = handler
-
-                    if (btConnection.returnSocketStatus()){
-                        binding.bSendMessage.isEnabled = true
-                        binding.etMessage.isEnabled = true
-                    }
-                    else{
-                        binding.bSendMessage.isEnabled = false
-                        binding.etMessage.isEnabled = false
-                    }
-
+                    changeStatusChatElements(btConnection.returnSocketStatus())
                 }
                 else{
                     Log.d("MyLog", "Sync status: No device has been selected yet")
@@ -101,6 +91,13 @@ class ControlActivity : AppCompatActivity(){
     fun changeStatusChatElements(status: Boolean){
         binding.bSendMessage.isEnabled = status
         binding.etMessage.isEnabled = status
+        if(listItem != null) {
+            if (status) {
+                binding.tvCurrentDevice.text = "Device " + listItem!!.name + " connected"
+            } else {
+                binding.tvCurrentDevice.text = "Device " + listItem!!.name + " DISCONNECTED!"
+            }
+        }
     }
 
     private fun sendMsg(msg: String, type: String){
@@ -220,11 +217,19 @@ class ControlActivity : AppCompatActivity(){
 
     }
 
-    private val handler = @SuppressLint("HandlerLeak")
+    private val handler_input_message = @SuppressLint("HandlerLeak")
     object : Handler() {
         @SuppressLint("SetTextI18n")
         override fun handleMessage(msg: Message) {
-            sendMsg(msg.toString(), "input")
+            sendMsg(msg.obj.toString(), "input")
+        }
+    }
+
+    private val handler_bt_connection = @SuppressLint("HandlerLeak")
+    object : Handler() {
+        @SuppressLint("SetTextI18n")
+        override fun handleMessage(msg: Message) {
+            changeStatusChatElements(false)
         }
     }
 }

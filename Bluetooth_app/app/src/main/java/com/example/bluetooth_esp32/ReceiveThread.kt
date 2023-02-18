@@ -10,11 +10,11 @@ import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.*
 
-class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
+class ReceiveThread(bSocket: BluetoothSocket, val intput_handler: Handler) : Thread(){
     var outStream: OutputStream? = null
     var inStream: InputStream? = null
-
-    var handler: Handler? = null
+    var handler = intput_handler
+    var connectionState = true
 
     init {
         try {
@@ -40,19 +40,25 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
                 // Read from the InputStream
                 bytes = inStream!!.read(buffer, 0, inStream!!.available())
                 message = String(buffer, 0, bytes)
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 Log.d("MyLog", "The message was not received")
+                connectionState = false
                 break
             }
             if (bytes > 0) {
                 Log.d("MyLog", "Message: $message [$bytes]")
                 var messageHandler = Message.obtain()
-
                 messageHandler.obj = message
-
                 handler?.sendMessage(messageHandler)
+            } else {
+                try {
+                    sleep(1000)
+                    outStream?.write(".".toByteArray())
+                } catch (i: Exception){
+                    Log.d("MyLog", "Failed to ping 1: " + i.stackTraceToString())
+                    connectionState = false
+                }
             }
-
         }
     }
 
@@ -61,7 +67,6 @@ class ReceiveThread(bSocket: BluetoothSocket) : Thread(){
             outStream?.write(byteArray)
         } catch (i: IOException){
             Log.d("MyLog", "Failed to send a message: " + i.stackTraceToString())
-
         }
     }
 }

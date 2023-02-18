@@ -5,20 +5,17 @@ import android.bluetooth.BluetoothDevice
 import android.os.Handler
 import android.util.Log
 
-class BtConnection(private val adapter: BluetoothAdapter) {
+class BtConnection(private val adapter: BluetoothAdapter, val intput_handler: Handler, val handler_bt_connection: Handler) {
     private var cThread: ConnectThread? = null
     private var isSocketStatus = false
     private var currentDevice: BluetoothDevice? = null
-
-    var handler: Handler? = null
 
     fun connect(mac: String) {
             if (adapter.isEnabled && mac.isNotEmpty()) {
                 val device = adapter.getRemoteDevice(mac)
                 device.let {
                     if (cThread == null) {
-                        cThread = ConnectThread()
-                        cThread?.handler = handler
+                        cThread = ConnectThread(intput_handler, handler_bt_connection)
                         cThread?.start()
                         currentDevice = device
                         Log.d("MyLog", "Thread Started")
