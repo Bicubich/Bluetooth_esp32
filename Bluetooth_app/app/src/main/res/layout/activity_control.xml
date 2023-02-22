@@ -60,8 +60,6 @@
 
     </ScrollView>
 
-
-
     <TextView
         android:id="@+id/tvCurrentDevice"
         android:layout_width="wrap_content"

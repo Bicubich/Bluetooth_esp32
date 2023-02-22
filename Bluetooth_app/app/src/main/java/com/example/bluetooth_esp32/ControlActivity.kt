@@ -19,15 +19,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.bluetooth_esp32.databinding.ActivityControlBinding
 
+/*
+    Main class responsible for UI
+ */
+
 class ControlActivity : AppCompatActivity(){
     lateinit var binding: ActivityControlBinding
     private lateinit var actListLauncher: ActivityResultLauncher<Intent>
-    lateinit var btConnection: BtConnection
+    private lateinit var btConnection: BtConnection
     private var listItem: ListItem? = null
 
     private var spinnerAdapter: ArrayAdapter<String>? = null
-
-    private var message: MutableList<String> = mutableListOf()
 
     private var pref: SharedPreferences? = null
     var commands: Array<String> = arrayOf()
@@ -42,20 +44,22 @@ class ControlActivity : AppCompatActivity(){
         initMemoryData()
         initSpinner()
         binding.bSendMessage.setOnClickListener{
-            var msg = binding.etMessage.text.toString()
+            val msg = binding.etMessage.text.toString()
             // we save the command when it is not in the last 10 in memory
-            if (!isContainsComand(msg))
+            if (!isContainsCommand(msg))
                 saveData(msg)
-            sendMsg(msg, "output")
+            sendMsg(msg, "OUT")
         }
     }
 
     private fun init(){
+        // Init BT manager and Adapter
         val btManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val btAdapter = btManager.adapter
-        btConnection = BtConnection(btAdapter, handler_input_message, handler_bt_connection)
+        btConnection = BtConnection(btAdapter, handlerInputMessage, handlerBtConnection)
         changeStatusChatElements(false)
-        pref = getSharedPreferences("TABLE", Context.MODE_PRIVATE)
+        // Init variable to persist history of commands
+        pref = getSharedPreferences("FireFly", Context.MODE_PRIVATE)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -69,7 +73,7 @@ class ControlActivity : AppCompatActivity(){
         } else if(item.itemId == R.id.id_connect){
             listItem.let {
                 if (it?.mac != null) {
-                    btConnection.connect(it.mac!!)
+                    btConnection.connect(it.mac)
                     changeStatusChatElements(btConnection.returnSocketStatus())
                 }
                 else{
@@ -81,11 +85,12 @@ class ControlActivity : AppCompatActivity(){
     }
 
     private fun onBtListResult(){
+        // create a contract that comes from BtListActivity
         actListLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()){
             if (it.resultCode == RESULT_OK){
                 listItem = it.data?.getSerializableExtra(BtListActivity.DEVICE_KEY) as ListItem
-                binding.tvCurrentDevice.text =  "Current device: " + listItem!!.name
+                binding.tvCurrentDevice.text = "Current device: ${listItem!!.name}"
             }
         }
     }
@@ -95,16 +100,16 @@ class ControlActivity : AppCompatActivity(){
         binding.etMessage.isEnabled = status
         if(listItem != null) {
             if (status) {
-                binding.tvCurrentDevice.text = "Device " + listItem!!.name + " connected"
+                binding.tvCurrentDevice.text = "Device ${listItem!!.name} connected"
             } else {
-                binding.tvCurrentDevice.text = "Dsevice " + listItem!!.name + " DISCONNECTED!"
+                binding.tvCurrentDevice.text = "Device ${listItem!!.name} DISCONNECTED!"
             }
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun sendMsg(msg: String, type: String){
-        if (type == "output") {
+        if (type == "OUT") {
             btConnection.sendMessage(msg)
         }
         if(binding.tvChatHostory.text == "") {
@@ -124,12 +129,10 @@ class ControlActivity : AppCompatActivity(){
 
         val keys: Map<String, *> = pref?.all as Map<String, *>
         for ((key, value) in keys) {
-
             Log.d(
                 "MyLog", key + ": " +
                         value.toString()
             )
-
         }
 
         commands = getSpinnerData()
@@ -162,7 +165,7 @@ class ControlActivity : AppCompatActivity(){
 
     // function moves the elements forward by one position
     private fun replaceData(){
-        var bufLastCommand = ""
+        var bufLastCommand: String
         var bufNextCommand = ""
 
         val memoryCell = MemoryCell()
@@ -177,9 +180,9 @@ class ControlActivity : AppCompatActivity(){
     }
 
     // function check repeat commands in spinner
-    fun isContainsComand(comm: String): Boolean{
+    private fun isContainsCommand(comm: String): Boolean{
         val keys: Map<String, *> = pref?.all as Map<String, *>
-        for ((key, value) in keys) {
+        for ((_, value) in keys) {
             if (comm == value.toString())
                 return true
         }
@@ -190,11 +193,11 @@ class ControlActivity : AppCompatActivity(){
     private fun getSpinnerData(): Array<String> {
         val listCommand: MutableList<String> = mutableListOf()
         val memoryCell = MemoryCell()
-        var value = ""
+        var value: String
         for (mCell in memoryCell.listSheets) {
             value = pref?.getString(mCell, "").toString()
             if (value != "")
-                listCommand.add(value.toString())
+                listCommand.add(value)
         }
 
         commands = listCommand.toTypedArray()
@@ -202,7 +205,7 @@ class ControlActivity : AppCompatActivity(){
         return commands
     }
 
-    // initialization spinner
+    // last commands spinner
     private fun initSpinner() {
         spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, commands)
         binding.spinner.adapter = spinnerAdapter
@@ -213,7 +216,7 @@ class ControlActivity : AppCompatActivity(){
                 position: Int,
                 id: Long
             ) {
-                binding.etMessage.setText(commands[position].toString())
+                binding.etMessage.setText(commands[position])
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -221,18 +224,17 @@ class ControlActivity : AppCompatActivity(){
             }
 
         }
-
     }
 
-    private val handler_input_message = @SuppressLint("HandlerLeak")
+    private val handlerInputMessage = @SuppressLint("HandlerLeak")
     object : Handler() {
         @SuppressLint("SetTextI18n")
         override fun handleMessage(msg: Message) {
-            sendMsg(msg.obj.toString(), "input")
+            sendMsg(msg.obj.toString(), "IN ")
         }
     }
 
-    private val handler_bt_connection = @SuppressLint("HandlerLeak")
+    private val handlerBtConnection = @SuppressLint("HandlerLeak")
     object : Handler() {
         @SuppressLint("SetTextI18n")
         override fun handleMessage(msg: Message) {

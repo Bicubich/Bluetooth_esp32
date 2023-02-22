@@ -52,8 +52,8 @@ class ReceiveThread(bSocket: BluetoothSocket, val intput_handler: Handler) : Thr
                 handler?.sendMessage(messageHandler)
             } else {
                 try {
-                    sleep(1000)
-                    outStream?.write(".".toByteArray())
+                    sleep(1500)
+                    outStream?.write("ping#".toByteArray())
                 } catch (i: Exception){
                     Log.d("MyLog", "Failed to ping 1: " + i.stackTraceToString())
                     connectionState = false
